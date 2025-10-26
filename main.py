@@ -30,7 +30,7 @@ frequency = st.sidebar.number_input(
 
 # NEW: Input for Speed of Sound
 speed_of_sound = st.sidebar.number_input(
-    "Speed of Sound (v)",
+    "Speed of Sound (m/s)",
     min_value=300.0,
     max_value=1000.0,
     value=343.0,  # Default speed of sound in air
