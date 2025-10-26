@@ -8,9 +8,9 @@ st.set_page_config(layout="wide")
 st.title("Wave Interference Simulation")
 st.markdown("""
 This app simulates wave interference using three waves:
-1.  **Wave 1 (Blue):** The original sine wave.
-2.  **Wave 2 (Orange):** An inverted version of the original, with an adjustable time delay.
-3.  **Wave 3 (Green):** The sum of Wave 1 and Wave 2 (destructive or constructive interference).
+1.  **Wave 1:** The original sine wave.
+2.  **Wave 2:** An inverted version of the original, with an adjustable time delay.
+3.  **Wave 3:** The sum of Wave 1 and Wave 2 (destructive or constructive interference).
 
 Use the sliders in the sidebar to see how frequency and time delay affect the resulting wave.
 """)
