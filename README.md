@@ -59,43 +59,17 @@ To run this project locally, follow these steps.
     cd your-repo-name
     ```
 
-2.  **Create a virtual environment (Recommended):**
+2.  **Install uv**
 
     ```bash
-    # For macOS/Linux
-    python3 -m venv venv
-    source venv/bin/activate
-
-    # For Windows
-    python -m venv venv
-    venv\Scripts\activate
+    pip install uv
     ```
 
-3.  **Install the dependencies:**
-    Create a file named `requirements.txt` and add the following lines:
-
-    ```
-    streamlit
-    pandas
-    numpy
-    altair
-    ```
-
-    Then, run:
+3.  **Run app with uv**
 
     ```bash
-    pip install -r requirements.txt
+    uv run streamlit run app.py
     ```
-
-4.  **Run the Streamlit app:**
-    (Assuming your script is named `app.py` or similar)
-
-    ```bash
-    streamlit run app.py
-    ```
-
-5.  **Open your browser:**
-    Streamlit will automatically open a new tab in your browser. If not, navigate to the local URL shown in your terminal (usually `http://localhost:8501`).
 
 ## Built With
 
