@@ -114,6 +114,83 @@ chart = alt.Chart(df_long).mark_line().encode(
 # Display the chart in the Streamlit app
 st.altair_chart(chart, use_container_width=True)
 
+# ==========================================================
+# --- 2. Frequency Response Plot (NEW SECTION) ---
+# ==========================================================
+st.header("Frequency Response Plot (20 Hz to 500 Hz)")
+st.markdown(f"""
+This plot shows the resulting amplitude (SPL) of **Wave 3 (the sum)** across a *range* of frequencies.
+This simulation shows the "comb filtering" effect caused by the fixed time delay of **{time_delay_sec*1000:.2f} ms**.
+""")
+
+# --- Frequency Response Calculation ---
+
+@st.cache_data
+def calculate_frequency_response(delay, speed, path_length):
+    """
+    Calculates the SPL of Wave 3 for frequencies from 20 to 500 Hz.
+    We use @st.cache_data so this only re-runs when inputs change.
+    """
+    
+    # Define the frequency range to scan
+    freq_range = np.linspace(20, 500, 481) # 20 Hz to 500 Hz, 1 Hz steps
+    
+    # We need a time array for the RMS calculation.
+    # 100ms (0.1s) is a good, safe duration to get a stable RMS.
+    t_sweep = np.linspace(0, 0.1, 1000) 
+    
+    # Calculate the reference RMS (RMS of Wave 1, which has amplitude 1)
+    # RMS for a sine wave of amplitude 1 is 1/sqrt(2)
+    rms_ref = 1 / np.sqrt(2)
+    
+    spl_results = []
+
+    # Loop through each frequency to calculate the resulting SPL
+    for f in freq_range:
+        omega_sweep = 2 * np.pi * f
+        
+        # 1. Wave 1
+        wave1_sweep = 1 * np.sin(omega_sweep * t_sweep)
+        
+        # 2. Wave 2 (using the fixed time_delay_sec)
+        wave2_sweep = -1 * np.sin(omega_sweep * (t_sweep - delay))
+        
+        # 3. Wave 3 (Sum)
+        wave3_sweep = wave1_sweep + wave2_sweep
+        
+        # Calculate the RMS of the resulting wave
+        rms_wave3 = np.sqrt(np.mean(np.square(wave3_sweep)))
+        
+        # Calculate SPL in dB relative to Wave 1's RMS (the 0 dB baseline)
+        # Add a small epsilon (1e-9) to prevent log(0) error
+        spl = 20 * np.log10((rms_wave3 + 1e-9) / rms_ref)
+        
+        spl_results.append({'Frequency (Hz)': f, 'SPL (dB)': spl})
+
+    # Create a DataFrame for the frequency response plot
+    return pd.DataFrame(spl_results)
+
+# Run the calculation
+df_freq = calculate_frequency_response(time_delay_sec, speed_of_sound, length)
+
+# --- Plotting with Altair ---
+chart_freq = alt.Chart(df_freq).mark_line(color="#2ca02c").encode(
+    x=alt.X('Frequency (Hz)', axis=alt.Axis(title='Frequency (Hz)'), scale=alt.Scale(domain=[20, 500])),
+    y=alt.Y('SPL (dB)', axis=alt.Axis(title='Sound Pressure Level (dB)')),
+    tooltip=[
+        alt.Tooltip('Frequency (Hz)', format='.1f'), 
+        alt.Tooltip('SPL (dB)', format='.2f')
+    ]
+).properties(
+    title=f"Frequency Response for {length:.2f} m Path Difference (τ = {time_delay_sec*1000:.2f} ms)"
+).interactive()
+
+st.altair_chart(chart_freq, use_container_width=True)
+
+
 # --- Optional: Show Raw Data ---
-with st.expander("View Raw Data"):
+with st.expander("View Time Domain Raw Data"):
     st.dataframe(df_wide)
+    
+with st.expander("View Frequency Response Raw Data"):
+    st.dataframe(df_freq)
